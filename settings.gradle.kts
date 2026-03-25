@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -24,4 +25,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "Reparo"
 include(":app")
- 
+include(":core:domain")
+include(":core:data")
+include(":core:presentation")
+include(":core:database")
+include(":core:network")
+include(":feature:auth")
+include(":core:di")

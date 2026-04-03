@@ -8,6 +8,7 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.compiler.gradlePlugin)
+    compileOnly(libs.kotlin.serialization.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
 }
 
@@ -32,6 +33,10 @@ gradlePlugin {
         register("androidDagger") {
             id = "reparo.android.dagger"
             implementationClass = "ru.itis.android.reparo.AndroidDaggerConventionPlugin"
+        }
+        register("androidNavigation") {
+            id = "reparo.android.navigation"
+            implementationClass = "ru.itis.android.reparo.AndroidNavigationConventionPlugin"
         }
     }
 }

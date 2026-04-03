@@ -1,0 +1,70 @@
+<resources>
+    <!-- StartScreen -->
+    <string name="start_title">Найдите проверенных специалистов за минуты</string>
+    <string name="start_description">Подключайтесь к верифицированным профессионалам для всех домашних услуг</string>
+    <string name="start_button">Начать</string>
+
+    <!-- PhoneScreen -->
+    <string name="phone_back">Назад</string>
+    <string name="phone_title">Введите номер телефона</string>
+    <string name="phone_subtitle">Мы отправим код для подтверждения</string>
+    <string name="phone_label">Номер телефона</string>
+    <string name="phone_placeholder">(999) 123-45-67</string>
+    <string name="phone_footer">Мы отправим SMS с кодом подтверждения на ваш номер</string>
+    <string name="password_title">Создайте пароль</string>
+    <string name="password_subtitle">Пароль должен содержать минимум 6 символов, заглавную букву и цифру</string>
+    <string name="password_label">Пароль</string>
+    <string name="password_placeholder">Введите пароль</string>
+    <string name="password_confirm_label">Подтвердите пароль</string>
+    <string name="password_confirm_placeholder">Повторите пароль</string>
+    <string name="password_error_mismatch">Пароли не совпадают</string>
+    <string name="password_req_length">Минимум 6 символов</string>
+    <string name="password_req_upper">Содержит заглавную букву</string>
+    <string name="password_req_digit">Содержит цифру</string>
+    <string name="continue_button">Продолжить</string>
+
+    <!-- RoleScreen -->
+    <string name="role_title">Выберите роль</string>
+    <string name="role_subtitle">Как вы планируете использовать приложение?</string>
+    <string name="role_client_title">Клиент</string>
+    <string name="role_client_description">Ищу специалистов для дома</string>
+    <string name="role_master_title">Мастер</string>
+    <string name="role_master_description">Предлагаю свои услуги</string>
+
+    <!-- ClientProfileScreen -->
+    <string name="profile_creation_title">Создание профиля</string>
+    <string name="profile_add_photo">Добавить фото профиля</string>
+    <string name="profile_name_label">Имя и фамилия</string>
+    <string name="profile_name_placeholder">Иван Иванов</string>
+    <string name="profile_email_label">Email</string>
+    <string name="profile_email_placeholder">ivan@example.com</string>
+    <string name="profile_city_label">Город</string>
+    <string name="profile_city_placeholder">Москва</string>
+    <string name="profile_about_label">О себе (необязательно)</string>
+    <string name="profile_about_placeholder">Расскажите немного о себе...</string>
+    <string name="profile_agree">Я согласен с правилами сервиса</string>
+    <string name="profile_create_button">Создать профиль</string>
+
+    <!-- MasterProfileScreen -->
+    <string name="master_reg_title">Регистрация мастера</string>
+    <string name="master_info_title">Профиль мастера</string>
+    <string name="master_info_subtitle">Укажите ваши услуги и информацию для получения заказов</string>
+    <string name="master_photo_trust">Рекомендуется для доверия клиентов</string>
+    <string name="master_exp_label">Опыт работы (лет)</string>
+    <string name="master_exp_placeholder">5</string>
+    <string name="master_services_label">Выберите услуги которые вы оказываете *</string>
+    <string name="master_services_subtitle">Выберите одну или несколько категорий</string>
+    <string name="master_about_label">О себе и опыте работы *</string>
+    <string name="master_about_placeholder">Расскажите о своих навыках...</string>
+    <string name="master_about_footer">Минимум 50 символов</string>
+    <string name="master_warning">⚠️ После отправки заявки ваш профиль будет проверен администрацией. Это может занять до 24 часов.</string>
+    <string name="master_submit_button">Отправить заявку на модерацию</string>
+
+    <!-- Categories -->
+    <string name="cat_plumbing">Сантехника</string>
+    <string name="cat_electric">Электрика</string>
+    <string name="cat_repair">Ремонт техники</string>
+    <string name="cat_finish">Отделка и ремонт</string>
+    <string name="cat_furniture">Мебель</string>
+    <string name="cat_ac">Кондиционеры</string>
+</resources>

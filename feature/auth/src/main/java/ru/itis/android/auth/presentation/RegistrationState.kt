@@ -11,7 +11,7 @@ data class RegistrationState(
     val experienceYears: Int? = null,
     val selectedCategories: List<String>? = emptyList(),
 
-    val isloading: Boolean = false,
+    val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val currentStep: Int = 1
 )

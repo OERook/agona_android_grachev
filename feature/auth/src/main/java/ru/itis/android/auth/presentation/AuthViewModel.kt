@@ -6,27 +6,57 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.itis.android.network.api.AuthApi
-import ru.itis.android.network.models.RegisterRequest
+import ru.itis.android.auth.domain.usecase.RegisterUseCase
 import javax.inject.Inject
 
 class AuthViewModel @Inject constructor(
-    private val authApi: AuthApi
+    private val registerUseCase: RegisterUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RegistrationState())
     val state = _state.asStateFlow()
 
     fun updatePhone(phone: String) {
-        _state.value = _state.value.copy(phone = phone)
+        _state.update { it.copy(phone = phone) }
     }
 
     fun updatePassword(password: String) {
-        _state.value = _state.value.copy(password = password)
+        _state.update { it.copy(password = password) }
     }
 
     fun setRole(role: String) {
         _state.update { it.copy(role = role) }
+    }
+
+
+    fun updateFullName(fullName: String) {
+        _state.update { it.copy(fullName = fullName) }
+    }
+
+    fun updateEmail(email: String) {
+        _state.update { it.copy(email = email) }
+    }
+
+    fun updateCity(city: String) {
+        _state.update { it.copy(city = city) }
+    }
+
+    fun updateAbout(about: String) {
+        _state.update { it.copy(about = about) }
+    }
+
+    fun updateExperience(years: Int) {
+        _state.update { it.copy(experienceYears = years) }
+    }
+
+    fun toggleCategory(categoryTitle: String) {
+        val currentCategories = _state.value.selectedCategories?.toMutableList() ?: mutableListOf()
+        if (currentCategories.contains(categoryTitle)) {
+            currentCategories.remove(categoryTitle)
+        } else {
+            currentCategories.add(categoryTitle)
+        }
+        _state.update { it.copy(selectedCategories = currentCategories) }
     }
 
     fun nextStep() {
@@ -34,38 +64,27 @@ class AuthViewModel @Inject constructor(
     }
 
     fun previousStep() {
-        if (_state.value.currentStep > 1){
+        if (_state.value.currentStep > 1) {
             _state.update { it.copy(currentStep = it.currentStep - 1) }
         }
     }
 
     fun register() {
-        val currentState = _state.value
         viewModelScope.launch {
-            _state.update { it.copy(isloading = true) }
-            try {
-                val request = RegisterRequest(
-                    phone = currentState.phone,
-                    password = currentState.password,
-                    email = currentState.email,
-                    fullName = currentState.fullName,
-                    role = currentState.role,
-                    city = currentState.city,
-                    about = currentState.about,
-                    experienceYears = currentState.experienceYears,
-                    categories = currentState.selectedCategories
-                )
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
 
-                val response = authApi.register(request)
-
-                if (response.isSuccessful){
-                    _state.update {it.copy(isloading = false)}
-                } else {
-                    _state.update {it.copy(isloading = false, errorMessage = "Ошибка регистрации")}
+            registerUseCase(state.value)
+                .onSuccess { user ->
+                    _state.update { it.copy(isLoading = false) }
                 }
-            }catch (e : Exception){
-                _state.update {it.copy(isloading = false, errorMessage = e.message)}
-            }
+                .onFailure { exception ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = exception.message
+                        )
+                    }
+                }
         }
     }
 }

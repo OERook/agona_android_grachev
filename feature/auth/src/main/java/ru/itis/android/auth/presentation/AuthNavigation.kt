@@ -1,8 +1,10 @@
 package ru.itis.android.auth.presentation
 
+import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
@@ -13,9 +15,23 @@ import ru.itis.android.auth.presentation.screens.RoleScreen
 import ru.itis.android.auth.presentation.screens.StartScreen
 
 @Composable
-fun AuthNavigation(viewModel: AuthViewModel) {
+fun AuthNavigation(
+    viewModel: AuthViewModel,
+    onAuthSuccess: () -> Unit
+) {
     val backStack = rememberNavBackStack(AuthScreen.Start)
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+
+
+    val safePopBackStack: () -> Unit = {
+        if (backStack.size > 1) {
+            backStack.removeAt(backStack.lastIndex)
+        } else {
+
+            (context as? Activity)?.finish()
+        }
+    }
 
     NavDisplay(
         backStack = backStack
@@ -31,7 +47,7 @@ fun AuthNavigation(viewModel: AuthViewModel) {
                     PhoneScreen(
                         viewModel = viewModel,
                         onNext = { backStack.add(AuthScreen.Role) },
-                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                        onBack = safePopBackStack
                     )
                 }
                 AuthScreen.Role -> {
@@ -44,19 +60,21 @@ fun AuthNavigation(viewModel: AuthViewModel) {
                                 backStack.add(AuthScreen.MasterProfile)
                             }
                         },
-                        onBackClick = { backStack.removeAt(backStack.lastIndex) }
+                        onBackClick = safePopBackStack
                     )
                 }
                 AuthScreen.MasterProfile -> {
                     MasterProfileScreen(
                         viewModel = viewModel,
-                        onBackClick = { backStack.removeAt(backStack.lastIndex) }
+                        onBackClick = safePopBackStack,
+                        onRegistrationSuccess = onAuthSuccess
                     )
                 }
                 AuthScreen.ClientProfile -> {
                     ClientProfileScreen(
                         viewModel = viewModel,
-                        onBackClick = { backStack.removeAt(backStack.lastIndex) }
+                        onBackClick = safePopBackStack,
+                        onRegistrationSuccess = onAuthSuccess
                     )
                 }
             }

@@ -1,6 +1,7 @@
 plugins {
     id("reparo.android.library")
     id("reparo.android.room")
+    id("reparo.android.dagger")
 }
 
 android {

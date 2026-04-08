@@ -60,6 +60,12 @@
     <string name="master_warning">⚠️ После отправки заявки ваш профиль будет проверен администрацией. Это может занять до 24 часов.</string>
     <string name="master_submit_button">Отправить заявку на модерацию</string>
 
+    <!-- Photo Dialog -->
+    <string name="photo_dialog_title">Фото профиля</string>
+    <string name="photo_dialog_text">Откуда вы хотите загрузить фотографию?</string>
+    <string name="photo_dialog_gallery">Из галереи</string>
+    <string name="photo_dialog_camera">Сделать селфи</string>
+
     <!-- Categories -->
     <string name="cat_plumbing">Сантехника</string>
     <string name="cat_electric">Электрика</string>

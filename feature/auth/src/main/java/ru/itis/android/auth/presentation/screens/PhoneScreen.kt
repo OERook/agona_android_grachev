@@ -42,7 +42,7 @@ private val ColorTextMedium = Color(0xFF364153)
 private val ColorTextLight = Color(0xFF4A5565)
 private val ColorTextGray = Color(0xFF6A7282)
 private val ColorBorder = Color(0xFFD1D5DC)
-private val ColorError = Color(0xFFEF4444)
+val ColorError = Color(0xFFEF4444)
 private val ColorSuccess = Color(0xFF10B981)
 
 @Composable

@@ -12,6 +12,7 @@ dependencies {
     implementation(project(path=":core:network"))
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
+    implementation(project(":core:database"))
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 }

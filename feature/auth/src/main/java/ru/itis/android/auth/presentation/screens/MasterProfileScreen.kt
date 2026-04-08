@@ -1,5 +1,10 @@
 package ru.itis.android.auth.presentation.screens
 
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -13,11 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import ru.itis.android.auth.presentation.AuthEffect
 import ru.itis.android.auth.presentation.AuthViewModel
 import ru.itis.android.reparo.feature.auth.R
 
@@ -33,7 +42,7 @@ private val ColorYellowBg = Color(0xFFFFFBEB)
 private val ColorYellowBorder = Color(0xFFFEE685)
 private val ColorWarningText = Color(0xFF7B3306)
 
-data class ServiceCategory(val titleRes: Int, val icon: ImageVector, val color: Color)
+data class ServiceCategory(val titleResId: Int, val icon: ImageVector, val color: Color)
 
 @Composable
 fun getAvailableCategories() = listOf(
@@ -48,11 +57,58 @@ fun getAvailableCategories() = listOf(
 @Composable
 fun MasterProfileScreen(
     viewModel: AuthViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onRegistrationSuccess: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
-    val availableCategories = getAvailableCategories()
+
+    var showPhotoDialog by remember { mutableStateOf(false) }
+    var avatarUri by remember { mutableStateOf<Uri?>(null) }
+    var avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        avatarUri = uri
+        avatarBitmap = null
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap: Bitmap? ->
+        avatarBitmap = bitmap
+        avatarUri = null
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is AuthEffect.NavigateToMain -> onRegistrationSuccess()
+            }
+        }
+    }
+
+    if (showPhotoDialog) {
+        AlertDialog(
+            onDismissRequest = { showPhotoDialog = false },
+            title = { Text(stringResource(R.string.photo_dialog_title), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.photo_dialog_text)) },
+            containerColor = Color.White,
+            confirmButton = {
+                TextButton(onClick = {
+                    showPhotoDialog = false
+                    galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }) { Text(stringResource(R.string.photo_dialog_gallery), color = ColorBlueMain) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showPhotoDialog = false
+                    cameraLauncher.launch(null)
+                }) { Text(stringResource(R.string.photo_dialog_camera), color = ColorBlueMain) }
+            }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
@@ -70,7 +126,10 @@ fun MasterProfileScreen(
             ) {
                 IconButton(
                     onClick = onBackClick,
-                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp).size(40.dp)
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 8.dp)
+                        .size(40.dp)
                 ) {
                     Icon(Icons.Default.ChevronLeft, contentDescription = null, tint = ColorTextSecondary)
                 }
@@ -107,9 +166,35 @@ fun MasterProfileScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                    Box(modifier = Modifier.size(112.dp)) {
-                        Box(modifier = Modifier.fillMaxSize().clip(CircleShape).background(Color(0xFFE5E7EB)), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color(0xFF99A1AF), modifier = Modifier.size(36.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(112.dp)
+                            .clickable { showPhotoDialog = true }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape)
+                                .background(Color(0xFFE5E7EB)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (avatarBitmap != null) {
+                                Image(
+                                    bitmap = avatarBitmap!!.asImageBitmap(),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else if (avatarUri != null) {
+                                AsyncImage(
+                                    model = avatarUri,
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color(0xFF99A1AF), modifier = Modifier.size(36.dp))
+                            }
                         }
                         Box(
                             modifier = Modifier
@@ -117,8 +202,7 @@ fun MasterProfileScreen(
                                 .align(Alignment.BottomEnd)
                                 .shadow(elevation = 6.dp, shape = CircleShape)
                                 .clip(CircleShape)
-                                .background(ColorBlueMain)
-                                .clickable { },
+                                .background(ColorBlueMain),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
@@ -138,11 +222,12 @@ fun MasterProfileScreen(
                 Text(stringResource(R.string.master_services_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextSecondary)
                 Text(stringResource(R.string.master_services_subtitle), fontSize = 12.sp, color = ColorTextGray, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
 
+                val availableCategories = getAvailableCategories()
                 Column {
                     for (i in availableCategories.indices step 2) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             val category1 = availableCategories[i]
-                            val title1 = stringResource(category1.titleRes)
+                            val title1 = stringResource(category1.titleResId)
                             val isSelected1 = state.selectedCategories?.contains(title1) == true
                             ServiceCard(
                                 title = title1,
@@ -154,7 +239,7 @@ fun MasterProfileScreen(
 
                             if (i + 1 < availableCategories.size) {
                                 val category2 = availableCategories[i + 1]
-                                val title2 = stringResource(category2.titleRes)
+                                val title2 = stringResource(category2.titleResId)
                                 val isSelected2 = state.selectedCategories?.contains(title2) == true
                                 ServiceCard(
                                     title = title2,
@@ -206,14 +291,31 @@ fun MasterProfileScreen(
             border = BorderStroke(0.5.dp, Color(0xFFE5E7EB)),
             color = Color.White
         ) {
-            Box(modifier = Modifier.padding(horizontal = 24.dp, vertical = 25.dp)) {
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (state.errorMessage != null) {
+                    Text(
+                        text = state.errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
                 Button(
                     onClick = { viewModel.register() },
                     modifier = Modifier.fillMaxWidth().height(56.dp).shadow(elevation = 8.dp, shape = CircleShape),
                     colors = ButtonDefaults.buttonColors(containerColor = ColorGreenMain),
-                    shape = CircleShape
+                    shape = CircleShape,
+                    enabled = !state.isLoading && state.fullName.isNotBlank()
                 ) {
-                    Text(stringResource(R.string.master_submit_button), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    if (state.isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text(stringResource(R.string.master_submit_button), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
                 }
             }
         }
@@ -240,7 +342,6 @@ fun MasterInputField(label: String, value: String, placeholder: String, onValueC
 
 @Composable
 fun ServiceCard(title: String, category: ServiceCategory, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier) {
-
     val isLongTitle = title.length > 12
     val cardHeight = if (isLongTitle) 132.dp else 112.dp
 

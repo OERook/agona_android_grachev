@@ -29,7 +29,13 @@ class MainActivity : ComponentActivity() {
         val viewModelFactory = authComponent.viewModelFactory()
         val authViewModel = ViewModelProvider(this, viewModelFactory)[AuthViewModel::class.java]
         setContent {
-            AuthNavigation(viewModel = authViewModel)
+            AuthNavigation(
+                viewModel = authViewModel,
+                onAuthSuccess = {
+                    // TODO: Здесь будет логика перехода на главный экран приложения.
+                    println("Регистрация прошла успешно! Переходим на Главный экран.")
+                }
+            )
         }
     }
 }

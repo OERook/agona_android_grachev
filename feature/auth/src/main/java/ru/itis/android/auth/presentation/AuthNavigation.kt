@@ -2,6 +2,7 @@ package ru.itis.android.auth.presentation
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect // Обязательный импорт
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -23,12 +24,16 @@ fun AuthNavigation(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
+    LaunchedEffect(state.isAuthSuccessful) {
+        if (state.isAuthSuccessful) {
+            onAuthSuccess()
+        }
+    }
 
     val safePopBackStack: () -> Unit = {
         if (backStack.size > 1) {
             backStack.removeAt(backStack.lastIndex)
         } else {
-
             (context as? Activity)?.finish()
         }
     }
@@ -47,7 +52,7 @@ fun AuthNavigation(
                     PhoneScreen(
                         viewModel = viewModel,
                         onNext = { backStack.add(AuthScreen.Role) },
-                        onBack = safePopBackStack
+                        onBack = safePopBackStack,
                     )
                 }
                 AuthScreen.Role -> {
@@ -67,14 +72,14 @@ fun AuthNavigation(
                     MasterProfileScreen(
                         viewModel = viewModel,
                         onBackClick = safePopBackStack,
-                        onRegistrationSuccess = onAuthSuccess
+                        onRegistrationSuccess = {}
                     )
                 }
                 AuthScreen.ClientProfile -> {
                     ClientProfileScreen(
                         viewModel = viewModel,
                         onBackClick = safePopBackStack,
-                        onRegistrationSuccess = onAuthSuccess
+                        onRegistrationSuccess = {}
                     )
                 }
             }

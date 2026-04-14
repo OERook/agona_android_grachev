@@ -13,5 +13,8 @@ data class RegistrationState(
 
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val currentStep: Int = 1
+    val currentStep: Int = 1,
+
+    val isLoginMode: Boolean = false,
+    val isAuthSuccessful: Boolean = false
 )

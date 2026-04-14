@@ -1,6 +1,7 @@
 package ru.itis.android.backend
 
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode // Добавлен нужный импорт для статусов
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -16,7 +17,12 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.serialization.Serializable
-import java.lang.Math.random
+
+@Serializable
+data class LoginRequest(
+    val phone: String,
+    val password: String
+)
 
 @Serializable
 data class RegisterRequest(
@@ -64,29 +70,60 @@ fun Application.module() {
             call.respondText("Сервер Reparo запущен и готов к работе!")
         }
 
+        val usersDatabase = mutableMapOf<String, Pair<String, NetworkUser>>()
+
         route("/auth") {
             post("/register") {
                 try {
                     val request = call.receive<RegisterRequest>()
-                    println(">>> Получен запрос на регистрацию: ${request.fullName} (${request.role})")
 
-                    val response = AuthResponse(
-                        accessToken = "dummy_token_${System.currentTimeMillis()}",
-                        user = NetworkUser(
-                            id = "user_${(100..999).random()}",
-                            phone = request.phone,
-                            email = request.email,
-                            fullName = request.fullName,
-                            role = request.role,
-                            about = request.about ?: "Я новый пользователь сервиса Reparo!",
-                            experienceYears = request.experienceYears ?: 0
-                        )
+                    if (usersDatabase.containsKey(request.phone)) {
+                        call.respondText("Пользователь с таким телефоном уже существует!", status = HttpStatusCode.Conflict)
+                        return@post
+                    }
+
+                    val networkUser = NetworkUser(
+                        id = "user_${(100..999).random()}",
+                        phone = request.phone,
+                        email = request.email,
+                        fullName = request.fullName,
+                        role = request.role,
+                        about = request.about ?: "Я новый пользователь сервиса Reparo!",
+                        experienceYears = request.experienceYears ?: 0
                     )
 
+                    usersDatabase[request.phone] = Pair(request.password, networkUser)
+
+                    val response = AuthResponse(
+                        accessToken = "token_${request.phone}_${System.currentTimeMillis()}",
+                        user = networkUser
+                    )
                     call.respond(response)
                 } catch (e: Exception) {
-                    println("Ошибка при регистрации: ${e.message}")
-                    call.respondText("Ошибка сервера", status = io.ktor.http.HttpStatusCode.InternalServerError)
+                    call.respondText("Ошибка сервера", status = HttpStatusCode.InternalServerError)
+                }
+            }
+
+            post("/login") {
+                try {
+                    val request = call.receive<LoginRequest>()
+
+                    val savedData = usersDatabase[request.phone]
+
+                    if (savedData != null && savedData.first == request.password) {
+                        val response = AuthResponse(
+                            accessToken = "token_${request.phone}_${System.currentTimeMillis()}",
+                            user = savedData.second
+                        )
+                        call.respond(response)
+                    } else {
+                        call.respondText(
+                            "Неверный телефон или пароль",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    }
+                } catch (e: Exception) {
+                    call.respondText("Ошибка сервера", status = HttpStatusCode.InternalServerError)
                 }
             }
         }

@@ -3,6 +3,7 @@ package ru.itis.android.auth.data.repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.itis.android.auth.domain.repository.AuthRepository
+import ru.itis.android.data.datastore.SessionManager
 import ru.itis.android.database.dao.UserDao
 import ru.itis.android.database.entity.UserEntity
 import ru.itis.android.network.api.AuthApi
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val sessionManager: SessionManager // DataStore инжектится
 ) : AuthRepository {
 
     override suspend fun register(request: RegisterRequest): Result<UserInfo.User> {
@@ -24,6 +26,9 @@ class AuthRepositoryImpl @Inject constructor(
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null) {
+
+                        sessionManager.saveToken(body.accessToken)
+
                         val networkUser = body.user
 
                         val userEntity = UserEntity(
@@ -82,6 +87,9 @@ class AuthRepositoryImpl @Inject constructor(
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null) {
+
+                        sessionManager.saveToken(body.accessToken)
+
                         val networkUser = body.user
 
                         val userEntity = UserEntity(

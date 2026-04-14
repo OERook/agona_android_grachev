@@ -33,6 +33,9 @@
 
     <!-- ClientProfileScreen -->
     <string name="profile_creation_title">Создание профиля</string>
+    <string name="profile_reg_client">Регистрация клиента</string>
+    <string name="profile_client_title">Профиль клиента</string>
+    <string name="profile_client_subtitle">Заполните данные для создания заказов</string>
     <string name="profile_add_photo">Добавить фото профиля</string>
     <string name="profile_name_label">Имя и фамилия</string>
     <string name="profile_name_placeholder">Иван Иванов</string>
@@ -40,6 +43,7 @@
     <string name="profile_email_placeholder">ivan@example.com</string>
     <string name="profile_city_label">Город</string>
     <string name="profile_city_placeholder">Москва</string>
+    <string name="profile_city_default">Ваш город</string>
     <string name="profile_about_label">О себе (необязательно)</string>
     <string name="profile_about_placeholder">Расскажите немного о себе...</string>
     <string name="profile_agree">Я согласен с правилами сервиса</string>

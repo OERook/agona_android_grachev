@@ -81,14 +81,6 @@ fun MasterProfileScreen(
         avatarUri = null
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is AuthEffect.NavigateToMain -> onRegistrationSuccess()
-            }
-        }
-    }
-
     if (showPhotoDialog) {
         AlertDialog(
             onDismissRequest = { showPhotoDialog = false },
@@ -108,6 +100,14 @@ fun MasterProfileScreen(
                 }) { Text(stringResource(R.string.photo_dialog_camera), color = ColorBlueMain) }
             }
         )
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is AuthEffect.NavigateToMain -> onRegistrationSuccess()
+            }
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {

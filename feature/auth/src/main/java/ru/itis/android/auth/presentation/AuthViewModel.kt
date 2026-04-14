@@ -8,16 +8,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.itis.android.auth.domain.usecase.LoginUseCase
 import ru.itis.android.auth.domain.usecase.RegisterUseCase
 import javax.inject.Inject
-import kotlin.onSuccess
 
 sealed interface AuthEffect {
     data object NavigateToMain : AuthEffect
 }
 
 class AuthViewModel @Inject constructor(
-    private val registerUseCase: RegisterUseCase
+    private val registerUseCase: RegisterUseCase,
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RegistrationState())
@@ -26,38 +27,18 @@ class AuthViewModel @Inject constructor(
     private val _effect = Channel<AuthEffect>()
     val effect = _effect.receiveAsFlow()
 
-    fun updatePhone(phone: String) {
-        _state.update { it.copy(phone = phone) }
+    fun toggleLoginMode() {
+        _state.update { it.copy(isLoginMode = !it.isLoginMode) }
     }
 
-    fun updatePassword(password: String) {
-        _state.update { it.copy(password = password) }
-    }
-
-    fun setRole(role: String) {
-        _state.update { it.copy(role = role) }
-    }
-
-
-    fun updateFullName(fullName: String) {
-        _state.update { it.copy(fullName = fullName) }
-    }
-
-    fun updateEmail(email: String) {
-        _state.update { it.copy(email = email) }
-    }
-
-    fun updateCity(city: String) {
-        _state.update { it.copy(city = city) }
-    }
-
-    fun updateAbout(about: String) {
-        _state.update { it.copy(about = about) }
-    }
-
-    fun updateExperience(years: Int) {
-        _state.update { it.copy(experienceYears = years) }
-    }
+    fun updatePhone(phone: String) { _state.update { it.copy(phone = phone) } }
+    fun updatePassword(password: String) { _state.update { it.copy(password = password) } }
+    fun setRole(role: String) { _state.update { it.copy(role = role) } }
+    fun updateFullName(fullName: String) { _state.update { it.copy(fullName = fullName) } }
+    fun updateEmail(email: String) { _state.update { it.copy(email = email) } }
+    fun updateCity(city: String) { _state.update { it.copy(city = city) } }
+    fun updateAbout(about: String) { _state.update { it.copy(about = about) } }
+    fun updateExperience(years: Int) { _state.update { it.copy(experienceYears = years) } }
 
     fun toggleCategory(categoryTitle: String) {
         val currentCategories = _state.value.selectedCategories?.toMutableList() ?: mutableListOf()
@@ -88,15 +69,36 @@ class AuthViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true, errorMessage = null) }
 
             registerUseCase(state.value)
-                .onSuccess { user ->
-                    _state.update { it.copy(isLoading = false) }
-                    _effect.send(AuthEffect.NavigateToMain)
+                .onSuccess {
+                   _state.update { it.copy(isLoading = false, isAuthSuccessful = true) }
                 }
                 .onFailure { exception ->
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = exception.message ?: "Произошла неизвестная ошибка"
+                            errorMessage = exception.message
+                        )
+                    }
+                }
+        }
+    }
+
+    fun login() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
+
+            loginUseCase(
+                phone = state.value.phone,
+                password = state.value.password
+            )
+                .onSuccess {
+                   _state.update { it.copy(isLoading = false, isAuthSuccessful = true) }
+                }
+                .onFailure { exception ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = exception.message
                         )
                     }
                 }

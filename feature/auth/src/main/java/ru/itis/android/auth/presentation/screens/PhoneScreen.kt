@@ -30,9 +30,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.itis.android.auth.domain.validation.AuthValidator
+import ru.itis.android.auth.presentation.AuthEffect
 import ru.itis.android.auth.presentation.AuthViewModel
 import ru.itis.android.reparo.feature.auth.R
 
@@ -49,7 +51,7 @@ private val ColorSuccess = Color(0xFF10B981)
 fun PhoneScreen(
     viewModel: AuthViewModel,
     onNext: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
@@ -60,6 +62,9 @@ fun PhoneScreen(
     val isPhoneValid = AuthValidator.validatePhone("+7${state.phone}")
     val isPasswordValid = AuthValidator.validatePassword(state.password)
     val isPasswordsMatch = state.password == confirmPassword && confirmPassword.isNotEmpty()
+
+    val isLoginMode = state.isLoginMode
+
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
@@ -84,11 +89,17 @@ fun PhoneScreen(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(stringResource(R.string.phone_title), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = ColorTextDark, lineHeight = 32.sp)
+                Text(
+                    text = if (isLoginMode) "Вход в аккаунт" else stringResource(R.string.phone_title),
+                    fontSize = 24.sp, fontWeight = FontWeight.Bold, color = ColorTextDark, lineHeight = 32.sp
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(stringResource(R.string.phone_subtitle), fontSize = 14.sp, color = ColorTextLight, lineHeight = 20.sp)
+                Text(
+                    text = if (isLoginMode) "С возвращением! Рады видеть вас снова." else stringResource(R.string.phone_subtitle),
+                    fontSize = 14.sp, color = ColorTextLight, lineHeight = 20.sp
+                )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -122,13 +133,21 @@ fun PhoneScreen(
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(stringResource(R.string.phone_footer), fontSize = 12.sp, color = ColorTextGray, lineHeight = 16.sp)
+                if (!isLoginMode) {
+                    Text(stringResource(R.string.phone_footer), fontSize = 12.sp, color = ColorTextGray, lineHeight = 16.sp)
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(stringResource(R.string.password_title), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = ColorTextDark)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(stringResource(R.string.password_subtitle), fontSize = 14.sp, color = ColorTextLight)
+                Text(
+                    text = if (isLoginMode) "Ваш пароль" else stringResource(R.string.password_title),
+                    fontSize = 24.sp, fontWeight = FontWeight.Bold, color = ColorTextDark
+                )
+
+                if (!isLoginMode) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(stringResource(R.string.password_subtitle), fontSize = 14.sp, color = ColorTextLight)
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -142,49 +161,96 @@ fun PhoneScreen(
                     isPassword = true,
                     isPasswordVisible = isPasswordVisible,
                     onTogglePassword = { isPasswordVisible = !isPasswordVisible },
-                    isSuccess = isPasswordValid,
+                    isSuccess = if (isLoginMode) state.password.isNotEmpty() else isPasswordValid,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                if (!isLoginMode) {
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Text(stringResource(R.string.password_confirm_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                CustomInputField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    placeholder = stringResource(R.string.password_confirm_placeholder),
-                    keyboardType = KeyboardType.Password,
-                    isPassword = true,
-                    isPasswordVisible = isPasswordVisible,
-                    onTogglePassword = { isPasswordVisible = !isPasswordVisible },
-                    isError = state.password != confirmPassword && confirmPassword.isNotEmpty(),
-                    isSuccess = isPasswordsMatch,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    Text(stringResource(R.string.password_confirm_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomInputField(
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it },
+                        placeholder = stringResource(R.string.password_confirm_placeholder),
+                        keyboardType = KeyboardType.Password,
+                        isPassword = true,
+                        isPasswordVisible = isPasswordVisible,
+                        onTogglePassword = { isPasswordVisible = !isPasswordVisible },
+                        isError = state.password != confirmPassword && confirmPassword.isNotEmpty(),
+                        isSuccess = isPasswordsMatch,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                if (state.password != confirmPassword && confirmPassword.isNotEmpty()) {
-                    Text(stringResource(R.string.password_error_mismatch), color = ColorError, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                    if (state.password != confirmPassword && confirmPassword.isNotEmpty()) {
+                        Text(stringResource(R.string.password_error_mismatch), color = ColorError, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    PasswordRequirement(stringResource(R.string.password_req_length), state.password.length >= 6)
+                    PasswordRequirement(stringResource(R.string.password_req_upper), state.password.any { it.isUpperCase() })
+                    PasswordRequirement(stringResource(R.string.password_req_digit), state.password.any { it.isDigit() })
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                PasswordRequirement(stringResource(R.string.password_req_length), state.password.length >= 6)
-                PasswordRequirement(stringResource(R.string.password_req_upper), state.password.any { it.isUpperCase() })
-                PasswordRequirement(stringResource(R.string.password_req_digit), state.password.any { it.isDigit() })
 
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
-            Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 24.dp)) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (state.errorMessage != null) {
+                    Text(
+                        text = state.errorMessage!!,
+                        color = ColorError,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                }
+
                 Button(
-                    onClick = onNext,
+                    onClick = {
+                        if (isLoginMode) {
+                            viewModel.login()
+                        } else {
+                            onNext()
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth().height(56.dp).shadow(elevation = 6.dp, shape = CircleShape),
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = ColorPrimaryBlue, contentColor = Color.White),
-                    enabled = isPhoneValid && isPasswordValid && isPasswordsMatch
+                    enabled = if (isLoginMode) {
+                        isPhoneValid && state.password.isNotEmpty() && !state.isLoading
+                    } else {
+                        isPhoneValid && isPasswordValid && isPasswordsMatch && !state.isLoading
+                    }
                 ) {
-                    Text(stringResource(R.string.continue_button), fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    if (state.isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text(
+                            text = if (isLoginMode) "Войти" else stringResource(R.string.continue_button),
+                            fontSize = 16.sp, fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = if (isLoginMode) "Ещё нет аккаунта? Зарегистрироваться" else "Уже есть аккаунт? Войти",
+                    color = ColorPrimaryBlue,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .clickable {
+                            viewModel.clearError()
+                            viewModel.toggleLoginMode()
+                        }
+                        .padding(8.dp)
+                )
             }
         }
     }

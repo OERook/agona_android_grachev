@@ -2,6 +2,7 @@ plugins {
     id("reparo.android.library")
     id("reparo.android.dagger")
     id("com.google.devtools.ksp")
+    id("reparo.android.compose")
 }
 
 android {

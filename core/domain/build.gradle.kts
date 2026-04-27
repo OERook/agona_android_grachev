@@ -1,5 +1,6 @@
 plugins {
     id("reparo.android.library")
+
 }
 
 android {
@@ -7,5 +8,8 @@ android {
 }
 
 dependencies {
-    // Domain usually doesn't have many dependencies
+    dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+        implementation("javax.inject:javax.inject:1")
+    }
 }

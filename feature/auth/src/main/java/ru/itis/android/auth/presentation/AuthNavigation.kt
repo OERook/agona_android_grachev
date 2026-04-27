@@ -17,18 +17,11 @@ import ru.itis.android.auth.presentation.screens.StartScreen
 
 @Composable
 fun AuthNavigation(
-    viewModel: AuthViewModel,
-    onAuthSuccess: () -> Unit
-) {
+    viewModel: AuthViewModel) {
     val backStack = rememberNavBackStack(AuthScreen.Start)
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(state.isAuthSuccessful) {
-        if (state.isAuthSuccessful) {
-            onAuthSuccess()
-        }
-    }
 
     val safePopBackStack: () -> Unit = {
         if (backStack.size > 1) {

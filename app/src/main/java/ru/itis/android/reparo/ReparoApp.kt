@@ -1,9 +1,7 @@
 package ru.itis.android.reparo
 
 import android.app.Application
-import ru.itis.android.di.AppComponent
 import ru.itis.android.di.AppModule
-import ru.itis.android.di.DaggerAppComponent
 
 class ReparoApp : Application() {
 

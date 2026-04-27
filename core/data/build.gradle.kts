@@ -1,5 +1,6 @@
 plugins {
     id("reparo.android.library")
+    id("reparo.android.dagger")
 }
 
 android {
@@ -11,5 +12,4 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:database"))
     implementation("androidx.datastore:datastore-preferences:1.2.1")
-    implementation("javax.inject:javax.inject:1")
 }

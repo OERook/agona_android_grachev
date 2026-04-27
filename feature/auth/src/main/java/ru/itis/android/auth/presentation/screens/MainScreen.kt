@@ -25,6 +25,6 @@ fun MainScreen(){
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF101828)
-            )
+        )
     }
 }

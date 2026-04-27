@@ -1,24 +1,21 @@
 package ru.itis.android.auth.di
 
 import dagger.Component
-import ru.itis.android.di.AppComponent
-import javax.inject.Scope
+import ru.itis.android.di.AuthDeps // Импортируем наш контракт из :core:di
+import ru.itis.android.reparo.di.ViewModelFactory
 
-@Retention(AnnotationRetention.RUNTIME)
-@Scope
-annotation class AuthScope
-
-@AuthScope
 @Component(
-    dependencies = [AppComponent::class],
-    modules = [AuthModule::class]
+    modules = [AuthModule::class],
+    dependencies = [AuthDeps::class]
 )
 interface AuthComponent {
+
     fun viewModelFactory(): ViewModelFactory
 
     @Component.Builder
     interface Builder {
-        fun appComponent(appComponent: AppComponent): Builder
         fun build(): AuthComponent
+
+        fun authDeps(authDeps: AuthDeps): Builder
     }
 }

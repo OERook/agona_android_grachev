@@ -1,6 +1,8 @@
 plugins {
     id("reparo.android.library")
     id("reparo.android.dagger")
+    alias(libs.plugins.kotlin.serialization)
+
 }
 
 android {
@@ -8,6 +10,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.json)
     api(libs.retrofit)
     api(libs.retrofit.gson)
     api(libs.okhttp)

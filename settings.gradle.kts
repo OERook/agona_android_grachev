@@ -32,4 +32,5 @@ include(":core:database")
 include(":core:network")
 include(":feature:auth")
 include(":core:di")
-include(":backend")
+
+include(":feature:main")

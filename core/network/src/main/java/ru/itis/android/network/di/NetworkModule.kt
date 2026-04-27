@@ -7,6 +7,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.itis.android.network.api.AuthApi
+import ru.itis.android.network.api.CategoryApi
 import javax.inject.Singleton
 
 @Module
@@ -42,5 +43,11 @@ class NetworkModule {
     @Singleton
     fun provideAuthApi(retrofit: Retrofit): AuthApi {
         return retrofit.create(AuthApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCategoryApi(retrofit: Retrofit): CategoryApi {
+        return retrofit.create(CategoryApi::class.java)
     }
 }

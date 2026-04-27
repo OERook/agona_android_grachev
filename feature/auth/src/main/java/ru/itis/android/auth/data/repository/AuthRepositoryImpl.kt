@@ -1,6 +1,8 @@
 package ru.itis.android.auth.data.repository
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import ru.itis.android.auth.domain.repository.AuthRepository
 import ru.itis.android.data.datastore.SessionManager
@@ -16,7 +18,7 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
     private val userDao: UserDao,
-    private val sessionManager: SessionManager // DataStore инжектится
+    private val sessionManager: SessionManager
 ) : AuthRepository {
 
     override suspend fun register(request: RegisterRequest): Result<UserInfo.User> {
@@ -138,6 +140,12 @@ class AuthRepositoryImpl @Inject constructor(
             } catch (e: Exception) {
                 Result.failure(e)
             }
+        }
+    }
+
+    override fun checkAuthStatus(): Flow<Boolean> {
+        return sessionManager.tokenFlow.map {
+            token -> !token.isNullOrBlank()
         }
     }
 }

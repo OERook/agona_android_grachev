@@ -16,8 +16,11 @@ android {
 dependencies {
     implementation(project(path=":core:domain"))
     implementation(project(path=":core:data"))
+    implementation(project(path=":core:network"))
+    implementation(project(path=":core:database"))
     implementation(project(path=":core:presentation"))
     implementation(project(path=":feature:auth"))
+    implementation(project(path=":feature:main"))
     implementation(project(path=":core:di"))
 
     implementation(libs.androidx.core.ktx)

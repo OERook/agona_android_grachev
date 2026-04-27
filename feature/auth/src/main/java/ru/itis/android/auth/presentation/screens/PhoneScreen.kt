@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.itis.android.auth.domain.validation.AuthValidator
@@ -94,13 +95,6 @@ fun PhoneScreen(
                     fontSize = 24.sp, fontWeight = FontWeight.Bold, color = ColorTextDark, lineHeight = 32.sp
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = if (isLoginMode) "С возвращением! Рады видеть вас снова." else stringResource(R.string.phone_subtitle),
-                    fontSize = 14.sp, color = ColorTextLight, lineHeight = 20.sp
-                )
-
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Text(stringResource(R.string.phone_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextMedium, lineHeight = 20.sp)
@@ -132,10 +126,6 @@ fun PhoneScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-                if (!isLoginMode) {
-                    Text(stringResource(R.string.phone_footer), fontSize = 12.sp, color = ColorTextGray, lineHeight = 16.sp)
-                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -143,11 +133,6 @@ fun PhoneScreen(
                     text = if (isLoginMode) "Ваш пароль" else stringResource(R.string.password_title),
                     fontSize = 24.sp, fontWeight = FontWeight.Bold, color = ColorTextDark
                 )
-
-                if (!isLoginMode) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(stringResource(R.string.password_subtitle), fontSize = 14.sp, color = ColorTextLight)
-                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -322,4 +307,17 @@ fun CustomInputField(
             }
         }
     )
+}
+
+@Composable
+private fun AnyScreen() {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        Text("12345")
+    }
+}
+
+@Preview
+@Composable
+private fun AnyScreenPreview() = MaterialTheme {
+    AnyScreen()
 }

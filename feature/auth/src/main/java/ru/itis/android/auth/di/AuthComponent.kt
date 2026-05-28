@@ -2,7 +2,7 @@ package ru.itis.android.auth.di
 
 import dagger.Component
 import ru.itis.android.di.AuthDeps // Импортируем наш контракт из :core:di
-import ru.itis.android.reparo.di.ViewModelFactory
+import ru.itis.android.di.ViewModelFactory
 
 @Component(
     modules = [AuthModule::class],

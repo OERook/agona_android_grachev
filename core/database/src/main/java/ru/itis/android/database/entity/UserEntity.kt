@@ -1,6 +1,5 @@
 package ru.itis.android.database.entity
 
-import android.provider.ContactsContract
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -11,6 +10,7 @@ data class UserEntity(
     val email: String,
     val fullName: String,
     val role: String,
+    val avatarUrl: String? = null,
     val about: String? = null,
     val experienceYears: Int? = null
 )

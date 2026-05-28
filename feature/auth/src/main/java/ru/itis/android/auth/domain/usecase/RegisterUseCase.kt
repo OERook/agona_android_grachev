@@ -22,6 +22,9 @@ class RegisterUseCase @Inject constructor(
             !AuthValidator.validatePassword(state.password) ->
                 Result.failure(Exception(ValidationError.WeakPassword.message))
 
+            state.password != state.confirmPassword ->
+                Result.failure(Exception("Пароли не совпадают"))
+
             state.fullName.isBlank() ->
                 Result.failure(Exception(ValidationError.EmptyFullName.message))
 
@@ -30,7 +33,7 @@ class RegisterUseCase @Inject constructor(
 
             else -> {
                 val request = RegisterRequest(
-                    phone = state.phone,
+                    phone = "+7${state.phone}",
                     password = state.password,
                     email = state.email,
                     fullName = state.fullName,
@@ -38,7 +41,7 @@ class RegisterUseCase @Inject constructor(
                     city = state.city,
                     about = state.about,
                     experienceYears = state.experienceYears,
-                    categories = state.selectedCategories?.toList()
+                    categories = state.selectedCategories.toList()
                 )
 
                 repository.register(request)

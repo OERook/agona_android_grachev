@@ -5,18 +5,63 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ElectricBolt
+import androidx.compose.material.icons.filled.Handyman
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -63,44 +108,15 @@ fun MasterProfileScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
-
     var showPhotoDialog by remember { mutableStateOf(false) }
     var avatarUri by remember { mutableStateOf<Uri?>(null) }
     var avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri: Uri? ->
-        avatarUri = uri
-        avatarBitmap = null
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        avatarUri = uri; avatarBitmap = null
     }
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        avatarBitmap = bitmap
-        avatarUri = null
-    }
-
-    if (showPhotoDialog) {
-        AlertDialog(
-            onDismissRequest = { showPhotoDialog = false },
-            title = { Text(stringResource(R.string.photo_dialog_title), fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.photo_dialog_text)) },
-            containerColor = Color.White,
-            confirmButton = {
-                TextButton(onClick = {
-                    showPhotoDialog = false
-                    galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                }) { Text(stringResource(R.string.photo_dialog_gallery), color = ColorBlueMain) }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showPhotoDialog = false
-                    cameraLauncher.launch(null)
-                }) { Text(stringResource(R.string.photo_dialog_camera), color = ColorBlueMain) }
-            }
-        )
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bmp ->
+        avatarBitmap = bmp; avatarUri = null
     }
 
     LaunchedEffect(Unit) {
@@ -111,6 +127,20 @@ fun MasterProfileScreen(
         }
     }
 
+    if (showPhotoDialog) {
+        MasterPhotoPickerDialog(
+            onDismiss = { showPhotoDialog = false },
+            onGallery = {
+                showPhotoDialog = false
+                galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onCamera = {
+                showPhotoDialog = false
+                cameraLauncher.launch(null)
+            }
+        )
+    }
+
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
             modifier = Modifier
@@ -119,204 +149,258 @@ fun MasterProfileScreen(
                 .windowInsetsPadding(WindowInsets.statusBars)
                 .padding(bottom = 120.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(97.dp)
-                    .border(width = 0.5.dp, color = Color(0xFFE5E7EB))
-            ) {
-                IconButton(
-                    onClick = onBackClick,
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 8.dp)
-                        .size(40.dp)
-                ) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = null, tint = ColorTextSecondary)
-                }
-                Text(
-                    text = stringResource(R.string.master_reg_title),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = ColorTextPrimary,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
+            MasterScreenHeader(onBack = onBackClick, title = stringResource(R.string.master_reg_title))
 
             Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                 Spacer(modifier = Modifier.height(24.dp))
-                Surface(
-                    modifier = Modifier.fillMaxWidth().height(127.dp),
-                    color = ColorGreenBg,
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(2.dp, ColorGreenInfo)
-                ) {
-                    Row(modifier = Modifier.padding(16.dp)) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF00A63E), modifier = Modifier.size(20.dp))
-                        Column(modifier = Modifier.padding(start = 12.dp)) {
-                            Text(stringResource(R.string.master_info_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = ColorTextPrimary)
-                            Text(
-                                stringResource(R.string.master_info_subtitle),
-                                fontSize = 14.sp,
-                                color = ColorTextSecondary,
-                                lineHeight = 20.sp
-                            )
-                        }
-                    }
-                }
+                MasterInfoBanner()
 
                 Spacer(modifier = Modifier.height(24.dp))
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                    Box(
-                        modifier = Modifier
-                            .size(112.dp)
-                            .clickable { showPhotoDialog = true }
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(CircleShape)
-                                .background(Color(0xFFE5E7EB)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (avatarBitmap != null) {
-                                Image(
-                                    bitmap = avatarBitmap!!.asImageBitmap(),
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else if (avatarUri != null) {
-                                AsyncImage(
-                                    model = avatarUri,
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else {
-                                Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color(0xFF99A1AF), modifier = Modifier.size(36.dp))
-                            }
-                        }
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .align(Alignment.BottomEnd)
-                                .shadow(elevation = 6.dp, shape = CircleShape)
-                                .clip(CircleShape)
-                                .background(ColorBlueMain),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
-                        }
-                    }
-                    Text(stringResource(R.string.profile_add_photo), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextSecondary, modifier = Modifier.padding(top = 12.dp))
-                    Text(stringResource(R.string.master_photo_trust), fontSize = 12.sp, color = ColorTextGray)
-                }
+                MasterAvatarSection(
+                    avatarBitmap = avatarBitmap,
+                    avatarUri = avatarUri,
+                    onClick = { showPhotoDialog = true }
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
                 MasterInputField(stringResource(R.string.profile_name_label), state.fullName, stringResource(R.string.profile_name_placeholder), viewModel::updateFullName)
                 MasterInputField(stringResource(R.string.profile_email_label), state.email, stringResource(R.string.profile_email_placeholder), viewModel::updateEmail)
                 MasterInputField(stringResource(R.string.profile_city_label), state.city, stringResource(R.string.profile_city_placeholder), viewModel::updateCity)
-                MasterInputField(stringResource(R.string.master_exp_label), state.experienceYears?.toString() ?: "", stringResource(R.string.master_exp_placeholder)) { viewModel.updateExperience(it.toIntOrNull() ?: 0) }
-
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(stringResource(R.string.master_services_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextSecondary)
-                Text(stringResource(R.string.master_services_subtitle), fontSize = 12.sp, color = ColorTextGray, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
-
-                val availableCategories = getAvailableCategories()
-                Column {
-                    for (i in availableCategories.indices step 2) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            val category1 = availableCategories[i]
-                            val title1 = stringResource(category1.titleResId)
-                            val isSelected1 = state.selectedCategories?.contains(title1) == true
-                            ServiceCard(
-                                title = title1,
-                                category = category1,
-                                isSelected = isSelected1,
-                                onClick = { viewModel.toggleCategory(title1) },
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            if (i + 1 < availableCategories.size) {
-                                val category2 = availableCategories[i + 1]
-                                val title2 = stringResource(category2.titleResId)
-                                val isSelected2 = state.selectedCategories?.contains(title2) == true
-                                ServiceCard(
-                                    title = title2,
-                                    category = category2,
-                                    isSelected = isSelected2,
-                                    onClick = { viewModel.toggleCategory(title2) },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            } else {
-                                Spacer(Modifier.weight(1f))
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(stringResource(R.string.master_about_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextSecondary)
-                OutlinedTextField(
-                    value = state.about ?: "",
-                    onValueChange = viewModel::updateAbout,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 124.dp).padding(top = 8.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = ColorBorder, focusedBorderColor = ColorBlueMain),
-                    placeholder = { Text(stringResource(R.string.master_about_placeholder), color = Color.Gray.copy(0.5f)) }
+                MasterInputField(
+                    label = stringResource(R.string.master_exp_label),
+                    value = state.experienceYears?.toString() ?: "",
+                    placeholder = stringResource(R.string.master_exp_placeholder),
+                    onValueChange = { viewModel.updateExperience(it.toIntOrNull() ?: 0) }
                 )
-                Text(stringResource(R.string.master_about_footer), fontSize = 12.sp, color = ColorTextGray, modifier = Modifier.padding(top = 4.dp))
 
                 Spacer(modifier = Modifier.height(24.dp))
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = ColorYellowBg,
-                    border = BorderStroke(1.dp, ColorYellowBorder),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(
-                        stringResource(R.string.master_warning),
-                        fontSize = 12.sp,
-                        color = ColorWarningText,
-                        modifier = Modifier.padding(16.dp),
-                        lineHeight = 16.sp
-                    )
-                }
+                MasterCategorySection(
+                    selectedCategories = state.selectedCategories,
+                    onToggle = viewModel::toggleCategory
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+                MasterAboutSection(about = state.about, onAboutChange = viewModel::updateAbout)
+
+                Spacer(modifier = Modifier.height(24.dp))
+                MasterWarningCard()
             }
         }
 
-        Surface(
-            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(105.dp),
-            border = BorderStroke(0.5.dp, Color(0xFFE5E7EB)),
-            color = Color.White
-        ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                if (state.errorMessage != null) {
-                    Text(
-                        text = state.errorMessage!!,
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
+        MasterRegistrationFooter(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            errorMessage = state.errorMessage,
+            isLoading = state.isLoading,
+            enabled = state.fullName.isNotBlank(),
+            onRegister = { viewModel.register() }
+        )
+    }
+}
 
-                Button(
-                    onClick = { viewModel.register() },
-                    modifier = Modifier.fillMaxWidth().height(56.dp).shadow(elevation = 8.dp, shape = CircleShape),
-                    colors = ButtonDefaults.buttonColors(containerColor = ColorGreenMain),
-                    shape = CircleShape,
-                    enabled = !state.isLoading && state.fullName.isNotBlank()
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                    } else {
-                        Text(stringResource(R.string.master_submit_button), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    }
+@Composable
+private fun MasterPhotoPickerDialog(onDismiss: () -> Unit, onGallery: () -> Unit, onCamera: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.photo_dialog_title), fontWeight = FontWeight.Bold) },
+        text = { Text(stringResource(R.string.photo_dialog_text)) },
+        containerColor = Color.White,
+        confirmButton = {
+            TextButton(onClick = onGallery) {
+                Text(stringResource(R.string.photo_dialog_gallery), color = ColorBlueMain)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCamera) {
+                Text(stringResource(R.string.photo_dialog_camera), color = ColorBlueMain)
+            }
+        }
+    )
+}
+
+@Composable
+private fun MasterScreenHeader(onBack: () -> Unit, title: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(97.dp)
+            .border(width = 0.5.dp, color = Color(0xFFE5E7EB))
+    ) {
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp).size(40.dp)
+        ) {
+            Icon(Icons.Default.ChevronLeft, contentDescription = null, tint = ColorTextSecondary)
+        }
+        Text(
+            text = title,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = ColorTextPrimary,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+private fun MasterInfoBanner() {
+    Surface(
+        modifier = Modifier.fillMaxWidth().height(127.dp),
+        color = ColorGreenBg,
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(2.dp, ColorGreenInfo)
+    ) {
+        Row(modifier = Modifier.padding(16.dp)) {
+            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF00A63E), modifier = Modifier.size(20.dp))
+            Column(modifier = Modifier.padding(start = 12.dp)) {
+                Text(stringResource(R.string.master_info_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = ColorTextPrimary)
+                Text(stringResource(R.string.master_info_subtitle), fontSize = 14.sp, color = ColorTextSecondary, lineHeight = 20.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MasterAvatarSection(avatarBitmap: Bitmap?, avatarUri: Uri?, onClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.size(112.dp).clip(CircleShape).clickable(onClick = onClick)) {
+            Box(
+                modifier = Modifier.fillMaxSize().clip(CircleShape).background(Color(0xFFE5E7EB)),
+                contentAlignment = Alignment.Center
+            ) {
+                avatarBitmap?.let { bmp ->
+                    Image(bitmap = bmp.asImageBitmap(), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                } ?: if (avatarUri != null) {
+                    AsyncImage(model = avatarUri, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                } else {
+                    Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color(0xFF99A1AF), modifier = Modifier.size(36.dp))
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .align(Alignment.BottomEnd)
+                    .shadow(elevation = 6.dp, shape = CircleShape)
+                    .clip(CircleShape)
+                    .background(ColorBlueMain),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+            }
+        }
+        Text(stringResource(R.string.profile_add_photo), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextSecondary, modifier = Modifier.padding(top = 12.dp))
+        Text(stringResource(R.string.master_photo_trust), fontSize = 12.sp, color = ColorTextGray)
+    }
+}
+
+@Composable
+private fun MasterCategorySection(selectedCategories: List<String>, onToggle: (String) -> Unit) {
+    val availableCategories = getAvailableCategories()
+    Text(stringResource(R.string.master_services_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextSecondary)
+    Text(
+        stringResource(R.string.master_services_subtitle),
+        fontSize = 12.sp,
+        color = ColorTextGray,
+        modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+    )
+    Column {
+        for (i in availableCategories.indices step 2) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                val cat1 = availableCategories[i]
+                val title1 = stringResource(cat1.titleResId)
+                ServiceCard(
+                    title = title1,
+                    category = cat1,
+                    isSelected = selectedCategories.contains(title1),
+                    onClick = { onToggle(title1) },
+                    modifier = Modifier.weight(1f)
+                )
+                if (i + 1 < availableCategories.size) {
+                    val cat2 = availableCategories[i + 1]
+                    val title2 = stringResource(cat2.titleResId)
+                    ServiceCard(
+                        title = title2,
+                        category = cat2,
+                        isSelected = selectedCategories.contains(title2),
+                        onClick = { onToggle(title2) },
+                        modifier = Modifier.weight(1f)
+                    )
+                } else {
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+    }
+}
+
+@Composable
+private fun MasterAboutSection(about: String?, onAboutChange: (String) -> Unit) {
+    Text(stringResource(R.string.master_about_label), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextSecondary)
+    OutlinedTextField(
+        value = about ?: "",
+        onValueChange = onAboutChange,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 124.dp).padding(top = 8.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = ColorBorder, focusedBorderColor = ColorBlueMain),
+        placeholder = { Text(stringResource(R.string.master_about_placeholder), color = Color.Gray.copy(0.5f)) }
+    )
+    Text(stringResource(R.string.master_about_footer), fontSize = 12.sp, color = ColorTextGray, modifier = Modifier.padding(top = 4.dp))
+}
+
+@Composable
+private fun MasterWarningCard() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = ColorYellowBg,
+        border = BorderStroke(1.dp, ColorYellowBorder),
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Text(
+            stringResource(R.string.master_warning),
+            fontSize = 12.sp,
+            color = ColorWarningText,
+            modifier = Modifier.padding(16.dp),
+            lineHeight = 16.sp
+        )
+    }
+}
+
+@Composable
+private fun MasterRegistrationFooter(
+    modifier: Modifier,
+    errorMessage: String?,
+    isLoading: Boolean,
+    enabled: Boolean,
+    onRegister: () -> Unit
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth().height(105.dp),
+        border = BorderStroke(0.5.dp, Color(0xFFE5E7EB)),
+        color = Color.White
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+            Button(
+                onClick = onRegister,
+                modifier = Modifier.fillMaxWidth().height(56.dp).shadow(elevation = 8.dp, shape = CircleShape),
+                colors = ButtonDefaults.buttonColors(containerColor = ColorGreenMain),
+                shape = CircleShape,
+                enabled = enabled && !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.master_submit_button), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
@@ -330,9 +414,7 @@ fun MasterInputField(label: String, value: String, placeholder: String, onValueC
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             placeholder = { Text(placeholder, color = Color.Black.copy(0.5f), fontSize = 16.sp) },
             shape = RoundedCornerShape(10.dp),
             singleLine = true,
@@ -343,11 +425,11 @@ fun MasterInputField(label: String, value: String, placeholder: String, onValueC
 
 @Composable
 fun ServiceCard(title: String, category: ServiceCategory, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier) {
-    val isLongTitle = title.length > 12
-    val cardHeight = if (isLongTitle) 132.dp else 112.dp
+    val cardHeight = if (title.length > 12) 132.dp else 112.dp
 
     Surface(
-        modifier = modifier.height(cardHeight).clickable(onClick = onClick),
+        onClick = onClick,
+        modifier = modifier.height(cardHeight),
         shape = RoundedCornerShape(12.dp),
         color = if (isSelected) category.color.copy(alpha = 0.08f) else Color.White,
         border = BorderStroke(2.dp, if (isSelected) category.color else Color(0xFFE5E7EB))
@@ -361,19 +443,13 @@ fun ServiceCard(title: String, category: ServiceCategory, isSelected: Boolean, o
                     Icon(category.icon, contentDescription = null, tint = category.color, modifier = Modifier.size(24.dp))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = title,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = ColorTextPrimary,
-                    maxLines = 2
-                )
+                Text(text = title, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = ColorTextPrimary, maxLines = 2)
             }
             if (isSelected) {
                 Box(
                     modifier = Modifier.align(Alignment.TopEnd).size(20.dp).background(category.color, CircleShape),
                     contentAlignment = Alignment.Center
-                ){
+                ) {
                     Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                 }
             }

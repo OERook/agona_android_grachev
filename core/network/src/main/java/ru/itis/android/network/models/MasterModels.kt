@@ -1,60 +1,54 @@
 package ru.itis.android.network.models
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import com.google.gson.annotations.SerializedName
 
-
-
-@Serializable
 data class ServiceCategoryDto(
-    @SerialName("id")
+    @SerializedName("id")
     val id: String,
-    @SerialName("name")
+    @SerializedName("name")
     val name: String,
-    @SerialName("description")
+    @SerializedName("description")
     val description: String? = null,
-    @SerialName("icon_url")
+    @SerializedName("icon_url")
     val iconUrl: String? = null
 )
 
-@Serializable
 data class MasterServiceDto(
-    @SerialName("id")
+    @SerializedName("id")
     val id: String,
-    @SerialName("category_id")
+    @SerializedName("category_id")
     val categoryId: String,
-    @SerialName("title")
+    @SerializedName("title")
     val title: String,
-    @SerialName("price_from")
+    @SerializedName("price_from")
     val priceFrom: Double,
-    @SerialName("price_to")
+    @SerializedName("price_to")
     val priceTo: Double? = null,
-    @SerialName("description")
+    @SerializedName("description")
     val description: String? = null
 )
 
-@Serializable
 data class MasterProfileDto(
-    @SerialName("id")
+    @SerializedName("id")
     val id: String,
-    @SerialName("user_id")
+    @SerializedName("user_id")
     val userId: String,
-    @SerialName("full_name")
+    @SerializedName("full_name")
     val fullName: String,
-    @SerialName("avatar_url")
+    @SerializedName("avatar_url")
     val avatarUrl: String? = null,
-    @SerialName("about")
+    @SerializedName("about")
     val about: String,
-    @SerialName("experience_years")
+    @SerializedName("experience_years")
     val experienceYears: Int,
-    @SerialName("rating")
+    @SerializedName("rating")
     val rating: Double,
-    @SerialName("reviews_count")
+    @SerializedName("reviews_count")
     val reviewsCount: Int,
-    @SerialName("completed_jobs")
+    @SerializedName("completed_jobs")
     val completedJobs: Int,
-    @SerialName("is_verified")
+    @SerializedName("is_verified")
     val isVerified: Boolean,
-    @SerialName("services")
+    @SerializedName("services")
     val services: List<MasterServiceDto>
 )

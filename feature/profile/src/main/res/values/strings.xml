@@ -1,0 +1,39 @@
+<resources>
+    <string name="profile_no_name">Без имени</string>
+    <string name="profile_role_master">Мастер</string>
+    <string name="profile_role_client">Клиент</string>
+    <string name="profile_contacts_title">Контактная информация</string>
+    <string name="profile_master_card_title">Профиль мастера</string>
+    <string name="profile_experience_unset">Опыт работы не указан</string>
+    <string name="profile_my_services">Мои услуги</string>
+    <string name="profile_services_empty">У вас пока нет добавленных услуг</string>
+    <string name="profile_reviews_title">Отзывы</string>
+    <string name="profile_reviews_empty">Отзывов пока нет</string>
+    <string name="profile_logout">Выйти</string>
+    <string name="profile_dash">—</string>
+
+    <string name="profile_orders_active_title">Активные заказы</string>
+    <string name="profile_orders_active_empty">Нет активных заказов</string>
+    <string name="profile_orders_completed_title">Завершённые заказы</string>
+    <string name="profile_orders_completed_empty">История пуста</string>
+
+    <string name="service_form_create_title">Создание услуги</string>
+    <string name="service_form_edit_title">Редактирование услуги</string>
+    <string name="service_form_name_label">Название</string>
+    <string name="service_form_name_hint">Например, Замена смесителя</string>
+    <string name="service_form_description_label">Описание</string>
+    <string name="service_form_description_hint">Что входит в услугу</string>
+    <string name="service_form_price_label">Цена, ₽</string>
+    <string name="service_form_price_hint">1500</string>
+    <string name="service_form_category_label">Категория</string>
+    <string name="service_form_submit_create">Создать</string>
+    <string name="service_form_submit_save">Сохранить</string>
+
+    <string name="service_action_edit">Изменить</string>
+    <string name="service_action_delete">Удалить</string>
+    <string name="service_delete_dialog_title">Удалить услугу?</string>
+    <string name="service_delete_dialog_message">Услуга будет удалена без возможности восстановления.</string>
+    <string name="action_confirm">Удалить</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_retry">Повторить</string>
+</resources>

@@ -2,12 +2,10 @@ plugins {
     id("reparo.android.library")
     id("reparo.android.compose")
     id("reparo.android.dagger")
-    id("reparo.android.navigation")
 }
 
 android {
     namespace = "ru.itis.android.main"
-
 }
 
 dependencies {

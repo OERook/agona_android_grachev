@@ -40,6 +40,6 @@ fun MasterProfileDto.toDomain(): MasterProfile {
         reviewsCount = this.reviewsCount,
         completedJobs = this.completedJobs,
         isVerified = this.isVerified,
-        services = this.services.map { it.toDomain() } // Мапим вложенный список!
+        services = this.services.map { it.toDomain() }
     )
 }

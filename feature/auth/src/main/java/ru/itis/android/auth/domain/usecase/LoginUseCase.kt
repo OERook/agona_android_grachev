@@ -13,7 +13,7 @@ class LoginUseCase @Inject constructor(
             return Result.failure(Exception("Пожалуйста, заполните телефон и пароль"))
         }
 
-        val request = LoginRequest(phone = phone, password = password)
+        val request = LoginRequest(phone = "+7$phone", password = password)
         return repository.login(request)
     }
 }

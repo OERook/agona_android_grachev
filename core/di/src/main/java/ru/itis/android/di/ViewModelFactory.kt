@@ -1,4 +1,4 @@
-package ru.itis.android.reparo.di
+package ru.itis.android.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

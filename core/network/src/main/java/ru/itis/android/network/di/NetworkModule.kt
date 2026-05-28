@@ -8,6 +8,13 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.itis.android.network.api.AuthApi
 import ru.itis.android.network.api.CategoryApi
+import ru.itis.android.network.api.ChatApi
+import ru.itis.android.network.api.MastersApi
+import ru.itis.android.network.api.OrdersApi
+import ru.itis.android.network.api.ReviewsApi
+import ru.itis.android.network.api.ServicesApi
+import ru.itis.android.network.auth.AuthInterceptor
+import ru.itis.android.network.auth.UnauthorizedInterceptor
 import javax.inject.Singleton
 
 @Module
@@ -23,8 +30,14 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+    fun provideOkHttpClient(
+        loggingInterceptor: HttpLoggingInterceptor,
+        authInterceptor: AuthInterceptor,
+        unauthorizedInterceptor: UnauthorizedInterceptor
+    ): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .addInterceptor(unauthorizedInterceptor)
             .addInterceptor(loggingInterceptor)
             .build()
     }
@@ -49,5 +62,35 @@ class NetworkModule {
     @Singleton
     fun provideCategoryApi(retrofit: Retrofit): CategoryApi {
         return retrofit.create(CategoryApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideServicesApi(retrofit: Retrofit): ServicesApi {
+        return retrofit.create(ServicesApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOrdersApi(retrofit: Retrofit): OrdersApi {
+        return retrofit.create(OrdersApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMastersApi(retrofit: Retrofit): MastersApi {
+        return retrofit.create(MastersApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReviewsApi(retrofit: Retrofit): ReviewsApi {
+        return retrofit.create(ReviewsApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideChatApi(retrofit: Retrofit): ChatApi {
+        return retrofit.create(ChatApi::class.java)
     }
 }

@@ -2,7 +2,6 @@ package ru.itis.android.auth.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.Component
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,12 +10,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.itis.android.auth.di.AuthComponent
-import ru.itis.android.auth.di.ViewModelFactory
 import ru.itis.android.auth.domain.usecase.CheckAuthUseCase
 import ru.itis.android.auth.domain.usecase.LoginUseCase
 import ru.itis.android.auth.domain.usecase.RegisterUseCase
-import ru.itis.android.di.AuthDeps
 import javax.inject.Inject
 
 sealed interface AuthEffect {
@@ -32,7 +28,7 @@ class AuthViewModel @Inject constructor(
     private val _state = MutableStateFlow(RegistrationState())
     val state = _state.asStateFlow()
 
-    private val _effect = Channel<AuthEffect>()
+    private val _effect = Channel<AuthEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
     val isAuthorised = checkAuthUseCase()
@@ -46,8 +42,12 @@ class AuthViewModel @Inject constructor(
         _state.update { it.copy(isLoginMode = !it.isLoginMode) }
     }
 
-    fun updatePhone(phone: String) { _state.update { it.copy(phone = phone) } }
+    fun updatePhone(phone: String) {
+        val digits = phone.filter(Char::isDigit).take(10)
+        _state.update { it.copy(phone = digits) }
+    }
     fun updatePassword(password: String) { _state.update { it.copy(password = password) } }
+    fun updateConfirmPassword(value: String) { _state.update { it.copy(confirmPassword = value) } }
     fun setRole(role: String) { _state.update { it.copy(role = role) } }
     fun updateFullName(fullName: String) { _state.update { it.copy(fullName = fullName) } }
     fun updateEmail(email: String) { _state.update { it.copy(email = email) } }
@@ -56,7 +56,7 @@ class AuthViewModel @Inject constructor(
     fun updateExperience(years: Int) { _state.update { it.copy(experienceYears = years) } }
 
     fun toggleCategory(categoryTitle: String) {
-        val currentCategories = _state.value.selectedCategories?.toMutableList() ?: mutableListOf()
+        val currentCategories = _state.value.selectedCategories.toMutableList()
         if (currentCategories.contains(categoryTitle)) {
             currentCategories.remove(categoryTitle)
         } else {
@@ -85,13 +85,14 @@ class AuthViewModel @Inject constructor(
 
             registerUseCase(state.value)
                 .onSuccess {
-                   _state.update { it.copy(isLoading = false) }
+                    _state.update { it.copy(isLoading = false) }
+                    _effect.send(AuthEffect.NavigateToMain)
                 }
                 .onFailure { exception ->
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = exception.message
+                            errorMessage = exception.message ?: "Не удалось войти. Попробуйте позже"
                         )
                     }
                 }
@@ -107,13 +108,14 @@ class AuthViewModel @Inject constructor(
                 password = state.value.password
             )
                 .onSuccess {
-                   _state.update { it.copy(isLoading = false) }
+                    _state.update { it.copy(isLoading = false) }
+                    _effect.send(AuthEffect.NavigateToMain)
                 }
                 .onFailure { exception ->
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = exception.message
+                            errorMessage = exception.message ?: "Не удалось войти. Попробуйте позже"
                         )
                     }
                 }

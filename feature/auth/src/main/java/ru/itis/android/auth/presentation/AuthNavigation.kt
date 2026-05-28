@@ -2,7 +2,7 @@ package ru.itis.android.auth.presentation
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect // Обязательный импорт
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -17,11 +17,11 @@ import ru.itis.android.auth.presentation.screens.StartScreen
 
 @Composable
 fun AuthNavigation(
-    viewModel: AuthViewModel) {
+    viewModel: AuthViewModel
+) {
     val backStack = rememberNavBackStack(AuthScreen.Start)
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
-
 
     val safePopBackStack: () -> Unit = {
         if (backStack.size > 1) {
@@ -65,14 +65,16 @@ fun AuthNavigation(
                     MasterProfileScreen(
                         viewModel = viewModel,
                         onBackClick = safePopBackStack,
-                        onRegistrationSuccess = {}
+                        onRegistrationSuccess = {
+                        }
                     )
                 }
                 AuthScreen.ClientProfile -> {
                     ClientProfileScreen(
                         viewModel = viewModel,
                         onBackClick = safePopBackStack,
-                        onRegistrationSuccess = {}
+                        onRegistrationSuccess = {
+                        }
                     )
                 }
             }

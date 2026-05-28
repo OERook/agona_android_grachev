@@ -1,10 +1,7 @@
 package ru.itis.android.data.model
 
-enum class UserRole(val value: String) {
-    USER("client"),
-    MASTER("master"),
-    ADMIN("admin")
-}
+import ru.itis.android.model.ServiceCategory
+import ru.itis.android.model.UserRole
 
 sealed interface UserInfo {
 

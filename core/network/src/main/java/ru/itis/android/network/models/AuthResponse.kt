@@ -1,17 +1,21 @@
 package ru.itis.android.network.models
 
+import com.google.gson.annotations.SerializedName
+
 data class AuthResponse(
-    val accessToken: String,
-    val user: NetworkUser
+    @SerializedName("access_token") val accessToken: String,
+    @SerializedName("user") val user: NetworkUser
 )
 
 data class NetworkUser(
-    val id: String,
-    val phone: String,
-    val email: String,
-    val fullName: String,
-    val role: String,
-    val avatarUrl: String? = null,
-    val about: String? = null,
-    val experienceYears: Int? = null
+    @SerializedName("id") val id: String,
+    @SerializedName("phone") val phone: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("full_name") val fullName: String,
+    @SerializedName("role") val role: String,
+    @SerializedName("city") val city: String? = null,
+    @SerializedName("avatar_url") val avatarUrl: String? = null,
+    @SerializedName("about") val about: String? = null,
+    @SerializedName("experience_years") val experienceYears: Int? = null,
+    @SerializedName("categories") val categories: List<String>? = null
 )

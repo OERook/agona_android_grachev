@@ -1,5 +1,4 @@
-package ru.itis.android.domain.usecase
-
+package ru.itis.android.usecase
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -19,13 +18,23 @@ class GetHomeDataUseCase @Inject constructor(
     suspend operator fun invoke(): Result<HomeData> {
         return try {
             coroutineScope {
-                val categoriesDeferred = async { repository.getCategories().getOrThrow() }
-                val mastersDeferred = async { repository.getMasters().getOrThrow() }
+                val categoriesDeferred = async { repository.getCategories() }
+                val mastersDeferred = async { repository.getMasters() }
 
-                val categories = categoriesDeferred.await()
-                val masters = mastersDeferred.await()
+                val categoriesResult = categoriesDeferred.await()
+                val mastersResult = mastersDeferred.await()
 
-                Result.success(HomeData(categories, masters))
+                if (categoriesResult.isFailure) {
+                    return@coroutineScope Result.failure(categoriesResult.exceptionOrNull()!!)
+                }
+                if (mastersResult.isFailure) {
+                    return@coroutineScope Result.failure(mastersResult.exceptionOrNull()!!)
+                }
+
+                Result.success(HomeData(
+                    categories = categoriesResult.getOrDefault(emptyList()),
+                    popularMasters = mastersResult.getOrDefault(emptyList())
+                ))
             }
         } catch (e: Exception) {
             Result.failure(e)

@@ -3,13 +3,14 @@ package ru.itis.android.auth.presentation
 data class RegistrationState(
     val phone: String = "",
     val password: String = "",
+    val confirmPassword: String = "",
     val email: String = "",
     val fullName: String = "",
     val city: String = "",
     val role: String = "client",
     val about: String? = null,
     val experienceYears: Int? = null,
-    val selectedCategories: List<String>? = emptyList(),
+    val selectedCategories: List<String> = emptyList(),
 
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
